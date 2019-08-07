@@ -1,7 +1,7 @@
 ---
 title: "R Tutorial"
 author: "Jihoon Kim"
-date: "8/10/2018"
+date: "8/7/2019"
 output: html_document
 ---
 
@@ -151,6 +151,7 @@ study$genotype[study$ethnicity == "AFR"]
 
 ## Sorting
 - QUESTION: How do you sort the mysbpdf dataframe by descending order of sbp, systolic blood pressure?
+   (Which patient has the highest SBP value?)
 
 ```{r}
 sbp <- c(160, 110, 170, 105, 165)
@@ -160,8 +161,7 @@ sort(sbp)
 patientid = c("john", "andy", "megan", "steven", "nicole")
 mysbpdf = data.frame(patientid, sbp, rankSBP)
 mysbpdf
-mysbpdf[ order(sbp),]
-mysbpdf[ order(patientid),]
+mysbpdf[ order(-sbp),]
 ```
 
 
