@@ -1,0 +1,590 @@
+---
+title: "R Tutorial"
+author: "Jihoon Kim"
+date: "8/10/2018"
+output: html_document
+---
+
+## install required R libraries
+
+```{r}
+options(repos = "http://cran.stat.ucla.edu")
+myPackageWishList = c( "data.table", "ggplot2", "Hmisc", "MASS", 
+                       "ResourceSelection", "rmeta", "ROCR", "survminer")
+for( i in myPackageWishList) {
+  if (!is.element(i, installed.packages()[,1])) 
+     install.packages(i, dep = TRUE)
+  require( i, character.only = TRUE, warn.conflicts = FALSE, quietly = TRUE )
+}
+```
+
+
+## load dependent libraries
+
+```{r}
+library(data.table)
+library(ggplot2)
+library(Hmisc)
+library(MASS)
+library(ResourceSelection)
+library(rmeta)
+library(ROCR)
+library(survminer)
+```
+
+## R as a calculator
+
+```{r}
+pi
+log(16, 2)
+2 + 5
+2 - 5
+2 * 5
+2 / 5
+2^5
+abs(-7)
+sqrt(100)
+round(123.456, 2)
+choose(5, 2)
+```
+
+## Operator
+- QUESTION: Can you convert the body temperature 102 Fahrenheit to Celsius?
+
+```{r}
+sbp <- 160
+sbp > 120
+1 + 2
+3 * 5
+30 / 5
+tempcelcius <- 40
+tempcelcius
+tempfahrenheit <-  tempcelcius * (9/5) + 32
+tempfahrenheit
+```
+
+
+## Vector
+- QUESTION: How many patients are in hypertension (sbp > 120)?
+- QUESTION: How many female patients are there?
+- QUESTION: What is the median value of the cholesterol?
+
+```{r}
+sbp <- c(160, 110, 105, 150, 170)
+sbp
+sbp[1]
+sbp[1:3]
+sbp[-5]
+gender <- c("male", "male", "female", "male", "female")
+gender
+tempcelcius <- c(40, 39, 40.5, 38.2, 37.2)
+tempcelcius
+tempfahrenheit <-  tempcelcius * (9/5) + 32
+tempfahrenheit
+cholesterol <- c(177, 193, 195, 209, 226)
+cholesterol
+mean( cholesterol )
+max( cholesterol )
+```
+
+## Factor variable
+
+```{r}
+levels(gender)
+length(gender)
+factorizedgender = factor(gender)
+levels(factorizedgender)
+gender
+factorizedgender
+```
+
+## Sequence
+
+```{r}
+seq(0:10)
+seq(0, 10)
+seq(from = 0, to = 10, by = 2)
+rep(2, 10)
+rep(1:3, 5)
+rep(c("male", "female"), 5)
+gl(2, 1, 12,  labels = c("low", "high"))
+gl(n = 2, k = 3, length = 12,  labels = c("low", "high"))
+```
+
+
+## Matrix
+- QUESTION: Calculate the row wise sum of the matrix m1
+
+```{r}
+m1 <- matrix(c(1:15), nrow=3)
+m1
+m2 <- matrix(c(1:15), nrow=3, byrow=T)
+m2
+m1[,3]
+m1[,-3]
+m1*100
+m1 + 7
+t(m1)
+apply(m1, 1, sum)
+```
+
+
+## Data frame
+- QUESTION: How many individuals are there in this cohort?
+- QUESTION: How many individuals experienced the relapse?
+
+```{r}
+genotype <- c("AA", "AA", "AA",  "AA", "AA", "GG", "GG", "GG", "GG")
+mrna <- c(100, 90, 105, 87, 92, 20, 24, 35, 27)
+ethnicity <- c("AFR", "AFR", "AFR", "AMR",  "AFR", "ASN", "EUR", "EUR", "EUR")
+relapse <- c("yes", "yes", "yes", "no", "yes", "no", "no", "no", "no")
+study <- data.frame( genotype, mrna, ethnicity, relapse)
+dim(study)
+nrow(study)
+head(study)
+colnames(study)
+study$mrna
+study$ethnicity[1:3]
+study$genotype[study$ethnicity == "EUR"]
+study$genotype[study$ethnicity == "AFR"]
+```
+
+## Sorting
+- QUESTION: How do you sort the mysbpdf dataframe by descending order of sbp, systolic blood pressure?
+
+```{r}
+sbp <- c(160, 110, 170, 105, 165)
+sbp
+rankSBP = rank(sbp)
+sort(sbp)
+patientid = c("john", "andy", "megan", "steven", "nicole")
+mysbpdf = data.frame(patientid, sbp, rankSBP)
+mysbpdf
+mysbpdf[ order(sbp),]
+mysbpdf[ order(patientid),]
+```
+
+
+## Loop
+
+```{r}
+for (i in 1:10) {
+    print (i^2)
+}
+```
+
+## Load a data from a file (n=699)
+Features are computed from a digitized image of a fine needle aspirate (FNA) of a breast mass. 
+They describe characteristics of the cell nuclei present in the image. 
+class (2 for benign, 4 for malignant)
+
+- QUESTION: How many samples are there?
+- QUESTION: What is the percentage of malignant samples?
+- QUESTION: What is the mean clump thickness among malignant samples?
+- QUESTION: What is the difference in samples with 'header = F' vs. 'header = T' in calling read.table() command?
+
+```{r}
+url = "https://archive.ics.uci.edu/ml/machine-learning-databases/breast-cancer-wisconsin/breast-cancer-wisconsin.data"
+wisconsinRawdata = read.table( url, sep=",", header = F)[,-1] 
+colnames(wisconsinRawdata) = c( "clumpthickness", "uniformcellsize", "uniformcellshape", "marginaladhesion",
+                           "singleepicellsize", "bareneclei", "blanchromatin", "normalnucleoili", 
+                           "mitoses", "class" )
+wisconsinbc = data.table( wisconsinRawdata )
+head( wisconsinbc )
+## print the clump thickness values of the malignant samples
+wisconsinbc[ class == 4, clumpthickness]
+```
+
+
+## ### Descriptive statistics
+bwt: baby's birthweight in grams
+smoke: mother's smoking status during pregnancy
+- QUESTION: What is the minimum value of the birthweight?
+- QUESTION: Between the two groups by smoking status during pregnancy, which one has the lower median birthweight?
+
+```{r}
+data(birthwt)
+head(birthwt)
+summary(birthwt$bwt)
+```
+
+
+## P-value
+The p-value is the probability obtaining a test statistic as extreme as or more extreme than the observed statistic given that the null hypothesis is true
+
+
+## Understanding P-value through a permutation test
+- A randomization test is a permutation test based on randomization (random assignment).
+- Its goal is to test a null hypothesis about treatment effects in a randomized experiment.
+- Can be used when the required distributional assumptions do NOT HOLD.
+
+## Permutation test algorithm
+1. Compute an observed test statistic in the experiment data.
+2. Permute data(=rearrange data) and compute a new test statistic. Repeat multiple times.
+3. Calculate the proportion of permuted test statistic values greater or equal to the observed one.
+4. This proportion is the P-value.
+
+
+## Permutation test example: Hypertension mouse model
+- Systolic blood pressure was measured in 250 progeny from a backcross between two mouse strains.
+- For simplicity, we focus on 50 (randomly chosen) mice genotyped at the D4Mit214 marker (although more markers were genotyped, chr4:45658442-45658566 bp, MGI:92846 http://www.informatics.jax.org/marker/MGI:92846.
+- The question is to see if there is an association between the D4Mit214 marker genotype (binary) and blood pressure level (continuous).
+- The values below show the systolic blood pressure (in mm of Hg) by the marker genotype, BA (heterozygous) or BB (homozygous) arranged in increasing order.
+- Reference: Copeland et al. Science 1993. A genetic linkage map of the mouse: current applications and future prospects.
+QUESTION: What is the difference in median values of systolic blood pressure between two genotypes?
+
+```{r}
+het = c(86, 88, 89, 89, 92, 93, 94, 94, 94, 
+      95, 95, 96, 96, 97, 97, 98, 98, 99, 
+      99, 101, 106, 107, 110, 113, 116, 118)
+hom = c(89, 90, 92, 93, 93, 96, 99, 99, 99, 102,
+  103, 104, 105, 106, 106, 107, 108, 108, 110, 110,
+  112, 114, 116, 116)
+cond = c(rep("het", length(het)), rep("hom", length(hom)))
+dat <- data.frame( cond, sbp=c(het, hom) )
+ggplot(dat, aes(x=cond, y=sbp, fill=cond)) + 
+  geom_boxplot(width=0.3)
+```
+
+
+## Permutation p-value
+- QUESTION: What p-value do you get if you change the permutation number to 10,000?
+
+```{r}
+set.seed(2018)
+diff.obs = mean(hom) - mean(het)
+n.perm=5000
+diff.perm=rep(NA, n.perm)
+len.het=length(het)
+len.hom=length(hom)
+hethom = c(het, hom)
+for (i in 1 : n.perm) {
+    het.perm = sample(hethom, len.het, replace=TRUE)
+    hom.perm = sample(hethom, len.hom, replace=TRUE)
+    diff.perm[i] = mean(hom.perm) - mean(het.perm)
+ }
+p.perm = sum( abs(diff.perm) >= abs(diff.obs) ) / n.perm
+print(p.perm)
+```
+
+## Parametric test
+- QUESTION: How different were the p-values from the permutation and patermetric tests?
+```{r}
+print(p.perm)
+t.test(het, hom)$p.value
+wilcox.test(het, hom, exact=FALSE)$p.value
+```
+
+
+## Binomial distribution
+- QUESTION: Suppose the probability of developing chronic bronchitis disease in any one household (where both parents are chronic bronchitics) is 0.05. How likely are infants in at least 3 out 20 households (where both parents are chronic bronchitics) to develop chronic bronchitis ?
+
+```{r}
+numhouse = 0:20
+cbProb <- dbinom(numhouse,  20, 0.05) 
+names(cbProb) = c(numhouse)
+barplot(cbProb, ylab="Probability", xlab="k", col=ifelse(numhouse >= 3, "orange", "grey") )
+```
+
+
+## Poisson distribution
+- QUESTION: Birth in a hospital occur randomly at an average rate of 1.8 births per hours. what is the probability of observing exactly 4 births in a given hour at the hospital? What about the probability of obeserving more than or equal to 2 births in a given hospital?
+
+```{r}
+dpois(4, lambda = 1.8)
+countbirth = c(0:12)
+probbirth = dpois(countbirth, lambda = 1.8)
+names(probbirth) = countbirth
+barplot(probbirth, ylab = "probability", xlab = "number of birth")
+```
+
+
+## Normal distribution
+- QUESTION: Can you repeat the code below by generating numbers from the Chi-square distribution with degree of freedom 2 instead of Normal distribution?
+
+```{r}
+myRandomNumbers = rnorm(2000, 0, 1)
+shapiro.test(myRandomNumbers)
+qqnorm(myRandomNumbers)
+qqline(myRandomNumbers)
+hist(myRandomNumbers)
+```
+
+## Two-sample t-test
+- QUESTION: Is there a significant difference in birth weight between smoker and non-smokers during pregnancy?
+
+```{r}
+data(birthwt)
+head(birthwt)
+boxplot( bwt ~ factor(ui), data = birthwt, boxwex=0.3,  col = c("royalblue", "orange"),
+         ylab = "birth weight in grams", xlab = "Presence of uterine irritability")
+t.test( birthwt$bwt[birthwt$ui==1], birthwt$bwt[birthwt$ui==0], paired = FALSE)
+```
+
+
+## Wilcoxon rank-sum test, a non-parametric test for two independent samples
+- QUESTION: Why might a t-test not be useful to ccompare the hospital Length Of Stay (LOS) between two hospitals A and B?
+
+```{r}
+LOS.hospitalA = c(21, 10, 32, 60, 8, 44, 29, 5, 13, 26, 33)
+LOS.hospitalB = c(86, 27, 10, 68, 87, 76, 125, 60, 35, 73, 96, 44, 238)
+wilcox.test(LOS.hospitalA , LOS.hospitalB) 
+```
+
+
+## Statistical power and sample size estimation
+The power of a statistical test is the probability of correctly rejecting the null hypothesis when it is false and defined as 1 - beta = Pr(reject null hupothesis when it is false)
+
+## Example: Coronary heart disease
+- Consider a clinical trial for evaluation of the effect of a test drug on cholesterol in patients with coronary heart disease (CHD).
+- Cholesterol is the main lipid associated with atherosclerotic vascular disease (ASVD). The purpose of cholesterol testing is to identify patients at risk for atherosclerosis.
+- About 75% of the cholesterol is bound to low density lipoproteins (LDLs) and 25% to high density lipoproteins (HDLs). Of these, LDL is the most directly associate with increased risk of CHD.
+- A pharmaceutical company is interested in conducting a clinical trial to compare two cholesterol lowering agents for treatment of patients with CHD through a parallel design. The primary efficacy parameter is the LDL.
+- Suppose a difference of 5% in percent change of LDL is considered of clinically meaningful difference.
+- Assume that the standard deviation is 10%.
+- Reference: Chow,S et al. (2008) Sample size calculations in clinical research. Boca Raton,FL. Chapman and Hall/CRC.
+
+QUESTION: What is the required sample size per group to achieve an 80% power at the 5% significance level?
+
+```{r}
+# DEFINE A FUNCTION
+ss.two_sample_mean = function(sigma, epsilon, alpha, beta) {
+    term.top =  (qnorm(1-alpha/2) + qnorm(beta) )^2 * sigma^2 * 2
+    term.bottom <-  abs(epsilon)^2
+    return(  ceiling( term.top / term.bottom ) )
+}
+
+# RUN A FUNCTION FOR A CORONARY HEART DISEASE EXAMPLE
+ss.two_sample_mean(0.1, 0.05, 0.05, 0.8)
+# [1] 63
+
+# VARY PARAMETERS 
+my.sigma = seq(0.05, 0.3, 0.05); my.epsilon = seq(0.05, 0.2, 0.05)
+len.sigma = length(my.sigma); len.epsilon = length(my.epsilon);
+my.ssize = matrix(1, nrow=len.sigma, ncol=len.epsilon, byrow=TRUE)
+for(i in 1:len.sigma) {
+   for(j in 1:len.epsilon) {
+      my.ssize[i,j] = ss.two_sample_mean(my.sigma[i], my.epsilon[j], 0.05, 0.8)
+    }
+}
+
+# DRAW A PLOT
+my.color = c("red", "gold", "blue", "green4")
+plot(my.sigma, my.ssize[,1], type="b", ylim=c(0, max(my.ssize)), col = my.color[1],
+      xlab="standard deviation", ylab="Required sample size in one arm" )
+points(my.sigma, my.ssize[,2], type="b", pch=17, col=my.color[2] )
+points(my.sigma, my.ssize[,3], type="b", pch=22, col=my.color[3] )
+points(my.sigma, my.ssize[,4], type="b", pch=16, col=my.color[4] )
+legend(my.sigma[1], max(my.ssize)*0.9,  legend=my.epsilon, pch=c(1, 17, 22, 16), 
+    col = my.color, title="mean difference"  )
+```
+
+
+## Logistic Regression with birth weight data
+- low:   indicator of birth weight less than 2.5 kg.
+- age:   mother's age in years.
+- lwt:   mother's weight in pounds at last menstrual period.
+- race:  mother's race (1 = white, 2 = black, 3 = other).
+- smoke: smoking status during pregnancy.
+- ptl:   number of previous premature labours.
+- ht:    history of hypertension.
+- ui:    presence of uterine irritability.
+- ftv:   number of physician visits during the first trimester.
+- bwt:   birth weight in grams.
+
+```{r}
+data(birthwt)
+bwt.df <- with(birthwt, {
+  race <- factor(race, labels = c("white", "black", "other"))
+  ptd <- factor(ptl > 0)
+  ftv <- factor(ftv)
+  levels(ftv)[-(1:2)] <- "2+"
+  data.frame(low = factor(low), bwt, age, lwt, race, smoke = (smoke > 0),
+             ptd, ht = (ht > 0), ui = (ui > 0), ftv)
+})
+head(bwt.df)
+```
+
+## Exploratory Data Analysis 
+- QUESTION: Can you create a similar boxplot of bwt along smoking status?
+
+```{r}
+### Exploratory data analysis
+ggplot(bwt.df, aes(x=race, y=bwt, fill=race)) + geom_boxplot(width=0.4) 
+ggplot(bwt.df, aes(x=ht, y=bwt, fill=ht)) + 
+  geom_boxplot(width=0.4) + xlab("History of hypertension")
+ggplot(bwt.df, aes(x=ui, y=bwt, fill=ui) ) + 
+  geom_boxplot(width=0.4) + xlab("Presence of uterine irritability")
+```
+
+
+## Fit a logistic regression model 
+- QUESTION: Which variable is the most significant and what is the odds ratio?
+
+```{r}
+bwt <- with(birthwt, {
+  race <- factor(race, labels = c("white", "black", "other"))
+  ptd <- factor(ptl > 0)
+  ftv <- factor(ftv)
+  levels(ftv)[-(1:2)] <- "2+"
+  data.frame(low = factor(low), age, lwt, race, smoke = (smoke > 0),
+             ptd, ht = (ht > 0), ui = (ui > 0), ftv)
+})
+options(contrasts = c("contr.treatment", "contr.poly"))
+m1 = glm(low ~ ., data = bwt, family = "binomial")
+summary(m1)$coef
+```
+
+
+## Model discrimination with Area Under the ROC Curve (AUC)
+
+```{r}
+mypred = prediction(m1$fitted.values, m1$y)
+roc.perf = performance(mypred, measure = "tpr", x.measure = "fpr")
+auc.perf = performance(mypred, measure = "auc")
+plot(roc.perf, col = "orange", lwd = 2,
+     main = paste ( "AUC = ", round(auc.perf@y.values[[1]], 2), sep="" )  )
+abline(a = 0, b = 1, lty = 2)
+```
+
+
+
+## Model calibration with Hosmer-Lemeshow test
+QUESTION: Which probability bin has the most ambiguous mix of two lables (low vs. normal)?
+
+```{r}
+myhl = hoslem.test(m1$y, m1$fitted.values, g=10)
+calibplot = data.frame( observedrisk = myhl$observed[,2] / apply(myhl$observed, 1, sum),
+                        predictedrisk = myhl$expected[,2] / apply(myhl$expected, 1, sum))
+plot(   observedrisk ~ predictedrisk, data = calibplot,
+       ylim = c(0, 1), xlim = c(0, 1))
+abline(a = 0 , b = 1, lty = 2)
+
+
+mycalib = data.frame(
+            predictionbin = factor(  c( rownames(myhl$observed),
+                                        rownames(myhl$observed)),
+                                    levels = rownames(myhl$observed)),
+            observedfreq = c(myhl$observed[,1], myhl$observed[,2]),
+            birthweight = factor( c( rep("normal", 10), rep("low", 10) ),
+                                  levels = c("normal", "low")) )
+ggplot(data=mycalib,
+         aes(x=predictionbin, y=observedfreq, fill = birthweight)) +
+      geom_bar(stat="identity", position=position_dodge()) +
+      theme(axis.text.x=element_text(angle=30, hjust=1) ) +
+     scale_fill_manual(values = c("royalblue", "orange")) +
+     ylab("Observed frequency") +
+     xlab("Prediction probability bin") +
+     ggtitle( paste("pvalue.HL = ", round(myhl$p.value, 4), sep=""))
+```
+
+## Changes to the calibration
+- QUESTION: Dividing prediction probabilities by 10 disrupts the model calibration. How much does the AUC value change?
+
+```{r}
+hoslem.test(m1$y, m1$fitted.values / 10, g=10)
+
+myhl = hoslem.test(m1$y, m1$fitted.values/10, g=10)
+calibplot = data.frame( observedrisk = myhl$observed[,2] / apply(myhl$observed, 1, sum),
+                        predictedrisk = myhl$expected[,2] / apply(myhl$expected, 1, sum))
+plot(   observedrisk ~ predictedrisk, data = calibplot,
+       ylim = c(0, 1), xlim = c(0, 1))
+abline(a = 0 , b = 1, lty = 2)
+
+
+```
+
+
+## Survival Anslysis
+- The most important difference between the outcome variables modeled via linear/logistic regression and survival analysis is the fact that we may observe the survival time partially
+- For those subjects who died, it is the outcome variable of interest, the actual survival time.
+- However, for subjects who were alive at the end of the study, or for subjects who were lost, the time variable indicates the length of follow-up, which is a partial or incomplete observation of survival time
+- These incomplete observations are referred to as being censored
+- If we ignore the consoling and treat the censored observations as if they were measurements of survival time, then the resulting sample statistics are NOT estimators of the respective parameters of the survival time distribution.
+
+
+## Survival analysis with lung cancer
+Loprinzi et al.  Journal of Clinical Oncology. 12(3):601-7, 1994.
+
+- inst:	Institution code
+- time:	Survival time in days
+- status:	censoring status 1=censored, 2=dead
+- age:	Age in years
+- sex:	Male=1 Female=2
+- ph.ecog:	ECOG performance score (0=good 5=dead)
+- ph.karno:	Karnofsky performance score (bad=0-good=100) rated by physician
+- pat.karno:	Karnofsky performance score as rated by patient
+- meal.cal:	Calories consumed at meals
+- wt.loss:	Weight loss in last six months
+
+
+```{r}
+data(lung)
+head(lung)
+m1.surv = survfit( Surv(time,status) ~ sex, data = lung)
+print(m1.surv)
+```
+
+
+## Kaplan-Meier curve
+- QUESTION: What is the median survival time for male?
+
+```{r}
+m1.diff = survdiff(Surv(time, status) ~ sex, data = lung)
+m1.diff
+ggsurvplot(m1.surv, data = lung, conf.int = TRUE, pval = TRUE, 
+           palette = c("orange", "royalblue"),
+           legend.labs =  c("Male", "Female"), surv.median.line = "hv",
+           risk.table = "abs_pct", risk.table.col = "strata", ggtheme = theme_bw() )
+```
+## Survival analysis: Cox Proportional Hazards (PH) model
+```{r}
+m.coxPH <- coxph(Surv(time, status) ~ age + sex + ph.ecog, data =  lung)
+summary(m.coxPH)
+sex_df <- with(lung,
+               data.frame(sex = c(1, 2), 
+                          age = rep(mean(age, na.rm = TRUE), 2),
+                          ph.ecog = c(1, 1)
+               )
+)
+m2.surv <- survfit(m.coxPH, newdata = sex_df)
+ggsurvplot(m2.surv, data = sex_df, conf.int = TRUE, 
+           palette = c("orange", "royalblue"), 
+           legend.labs= c("Male", "Female"),  surv.median.line = "hv",
+           ggtheme = theme_bw() )
+```
+
+## Test proportional hazards (PH) assumption
+
+```{r}
+m.zph = cox.zph(m.coxPH)
+ggcoxzph(m.zph)
+```
+
+## Meta-analysis odds ratio
+A randomised trial of corticosteroid therapy in premature labor and its effect on neonatal death.
+```{r}
+data( cochrane )
+head( cochrane )
+steroid <- meta.MH(n.trt, n.ctrl, 
+                   ev.trt, ev.ctrl,
+                   names=name, data=cochrane)
+tabletext <- cbind( 
+  c("","Study",steroid$names,NA,"Summary"),
+  c("Deaths","(steroid)",cochrane$ev.trt,NA,NA),
+  c("Deaths","(placebo)", cochrane$ev.ctrl, NA,NA),
+  c("","OR",format(exp(steroid$logOR),digits=2),NA,format(exp(steroid$logMH),digits=2))
+)
+m.ci <-     c(NA, NA, steroid$logOR,   NA, steroid$logMH)
+l.ci <- m.ci - c(NA, NA, steroid$selogOR, NA, steroid$selogMH)*2
+u.ci <- m.ci + c(NA, NA, steroid$selogOR, NA, steroid$selogMH)*2
+
+forestplot(tabletext, m.ci, l.ci, u.ci, zero=0, 
+           is.summary=c(TRUE,TRUE,rep(FALSE,8),TRUE),
+           clip=c(log(0.1),log(2.5)), 
+           xlog=TRUE,
+           col=meta.colors(box="royalblue", 
+                           line="darkblue", 
+                           summary="royalblue"))
+```
+
