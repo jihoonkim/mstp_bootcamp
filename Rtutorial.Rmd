@@ -251,9 +251,9 @@ ggplot(dat, aes(x=cond, y=sbp, fill=cond)) +
 - QUESTION: What p-value do you get if you change the permutation number to 10,000?
 
 ```{r}
-set.seed(2018)
+set.seed(2019)
 diff.obs = mean(hom) - mean(het)
-n.perm=5000
+n.perm=500
 diff.perm=rep(NA, n.perm)
 len.het=length(het)
 len.hom=length(hom)
