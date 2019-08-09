@@ -555,6 +555,8 @@ ggsurvplot(m2.surv, data = sex_df, conf.int = TRUE,
 ```
 
 ## Test proportional hazards (PH) assumption
+- An underlying assumption of proportional hazards models is that the effect of a change in a covariate on the hazard rate of event occurrence is constant over time. 
+- Schoenfeld residual-based test is one way to test for detecting violations of this assumption. 
 
 ```{r}
 m.zph = cox.zph(m.coxPH)
