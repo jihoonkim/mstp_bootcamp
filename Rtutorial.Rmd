@@ -196,7 +196,7 @@ wisconsinbc[ class == 4, clumpthickness]
 ```
 
 
-## ### Descriptive statistics
+## Descriptive statistics
 bwt: baby's birthweight in grams
 smoke: mother's smoking status during pregnancy
 - QUESTION: What is the minimum value of the birthweight?
@@ -288,7 +288,7 @@ barplot(cbProb, ylab="Probability", xlab="k", col=ifelse(numhouse >= 3, "orange"
 
 
 ## Poisson distribution
-- QUESTION: Birth in a hospital occur randomly at an average rate of 1.8 births per hours. what is the probability of observing exactly 4 births in a given hour at the hospital? What about the probability of obeserving more than or equal to 2 births in a given hospital?
+- QUESTION: Birth in a hospital occur randomly at an average rate of 1.8 births per hours. What is the probability of observing exactly 4 births in a given hour at the hospital? What about the probability of obeserving more than or equal to 2 births in a given hospital?
 
 ```{r}
 dpois(4, lambda = 1.8)
@@ -323,7 +323,7 @@ t.test( birthwt$bwt[birthwt$ui==1], birthwt$bwt[birthwt$ui==0], paired = FALSE)
 
 
 ## Wilcoxon rank-sum test, a non-parametric test for two independent samples
-- QUESTION: Why might a t-test not be useful to ccompare the hospital Length Of Stay (LOS) between two hospitals A and B?
+- QUESTION: Why might a t-test not be useful to compare the hospital Length Of Stay (LOS) between two hospitals A and B?
 
 ```{r}
 LOS.hospitalA = c(21, 10, 32, 60, 8, 44, 29, 5, 13, 26, 33)
@@ -333,7 +333,7 @@ wilcox.test(LOS.hospitalA , LOS.hospitalB)
 
 
 ## Statistical power and sample size estimation
-The power of a statistical test is the probability of correctly rejecting the null hypothesis when it is false and defined as 1 - beta = Pr(reject null hupothesis when it is false)
+The power of a statistical test is the probability of correctly rejecting the null hypothesis when it is false and defined as 1 - beta = Pr(reject null hypothesis when it is false)
 
 ## Example: Coronary heart disease
 - Consider a clinical trial for evaluation of the effect of a test drug on cholesterol in patients with coronary heart disease (CHD).
